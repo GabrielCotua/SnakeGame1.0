@@ -205,6 +205,8 @@ public class GamePanel extends JPanel implements ActionListener{
                         direction = 'D';
                     }
                     break;
+                default:
+                    System.out.println("Key" + e.getKeyCode() + " is not assigned!");
             }
         }
     }
