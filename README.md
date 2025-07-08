@@ -33,5 +33,6 @@ Este proyecto es una implementación básica del clásico juego **Snake**, progr
 
 1. **Compilar:**  
    ```bash
+   cd src\n
    javac *.java
    ```
