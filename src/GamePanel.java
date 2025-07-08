@@ -10,6 +10,12 @@ public class GamePanel extends JPanel implements ActionListener{
     static final int UNIT_SIZE = 25; // Size of the grid, and items in the game
     static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / UNIT_SIZE;
     static final int DELAY = 75; // The higher the number, slower the game will be
+
+    // Setting some standards to reset to
+    static final int STARTING_BODY_SIZE = 6;
+    static final int STARTING_DIRECTION = 'R';
+    static final int STARTING_APPLES_EATEN = 0;
+
     boolean running = false;
     Timer timer;
     Random random;
@@ -17,11 +23,11 @@ public class GamePanel extends JPanel implements ActionListener{
     /** Snake Variables **/
     final int x[] = new int[GAME_UNITS]; // X coordinates of snake body
     final int y[] = new int[GAME_UNITS]; // y coordinates of snake body
-    int bodyParts = 6; //starting size
-    char direction = 'R'; // values R = right, L = left, U = up, D = down
+    int bodyParts = STARTING_BODY_SIZE; //starting size
+    char direction = STARTING_DIRECTION; // values R = right, L = left, U = up, D = down
 
     /** Apple variables **/
-    int appleEaten = 0; // Points
+    int appleEaten = STARTING_APPLES_EATEN; // Points
     int appleX; // X coordinates of apple
     int appleY; // Y coordinates of apple
 
@@ -41,6 +47,29 @@ public class GamePanel extends JPanel implements ActionListener{
         timer.start();
     }
 
+    public void restartGame() {
+        // Setting values back to default
+        bodyParts = STARTING_BODY_SIZE;
+        direction = STARTING_DIRECTION;
+        appleEaten = STARTING_APPLES_EATEN;
+
+        // Resetting snake position to starting point
+        for (int i = 0; i < bodyParts; i++) {
+            x[i] = 100 - i * UNIT_SIZE;
+            y[i] = 100;
+        }
+
+        newApple();
+        running = true;
+
+        if (timer != null) {
+            timer.stop();
+        }
+
+        timer = new Timer(DELAY, this);
+        timer.start();
+    }
+
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         draw(g);
@@ -50,7 +79,7 @@ public class GamePanel extends JPanel implements ActionListener{
 
         if (running) {
 
-            // Draw grid lnes
+            // Draw grid lines
             for (int i = 0; i < SCREEN_HEIGHT / UNIT_SIZE; i++) {
                 g.drawLine(i * UNIT_SIZE, 0, i * UNIT_SIZE, SCREEN_HEIGHT);
                 g.drawLine(0, i * UNIT_SIZE, SCREEN_WIDTH, i * UNIT_SIZE);
@@ -73,7 +102,7 @@ public class GamePanel extends JPanel implements ActionListener{
                 }
             }
             g.setColor(Color.red);
-            g.setFont(new Font("Ink Free", Font.BOLD, 25));
+            g.setFont(new Font("Comic Sams", Font.BOLD, 25));
             FontMetrics metrics = getFontMetrics(g.getFont());
             g.drawString("Score: " + appleEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + appleEaten)) / 2, g.getFont().getSize());
         }
@@ -157,15 +186,20 @@ public class GamePanel extends JPanel implements ActionListener{
     public void gameOver(Graphics g) {
         // Score
         g.setColor(Color.red);
-        g.setFont(new Font("Ink Free", Font.BOLD, 25));
+        g.setFont(new Font("Comic Sams", Font.BOLD, 25));
         FontMetrics metrics1 = getFontMetrics(g.getFont());
         g.drawString("Score: " + appleEaten, (SCREEN_WIDTH - metrics1.stringWidth("Score: " + appleEaten)) / 2, g.getFont().getSize());
 
         // Game Over text
         g.setColor(Color.red);
-        g.setFont(new Font("Ink Free", Font.BOLD, 75));
+        g.setFont(new Font("Comic Sams", Font.BOLD, 75));
         FontMetrics metrics2 = getFontMetrics(g.getFont());
         g.drawString("Game Over", (SCREEN_WIDTH - metrics2.stringWidth("Game Over")) / 2, SCREEN_HEIGHT / 2); // Writes it in the middle of the screen
+
+        g.setColor(Color.white);
+        g.setFont(new Font("Comic Sams", Font.BOLD, 25));
+        FontMetrics metrics3 = getFontMetrics(g.getFont());
+        g.drawString("Press <Enter> to restart", (SCREEN_WIDTH - metrics3.stringWidth("Press <Enter> to restart")) / 2, (SCREEN_HEIGHT / 2) + 75);
     }
 
     @Override
@@ -194,6 +228,7 @@ public class GamePanel extends JPanel implements ActionListener{
                         direction = 'R';
                     }
                     break;
+
                 case KeyEvent.VK_W:
                     if (direction != 'D') {
                         direction = 'U';
@@ -205,6 +240,13 @@ public class GamePanel extends JPanel implements ActionListener{
                         direction = 'D';
                     }
                     break;
+
+                case KeyEvent.VK_ENTER:
+                    if (!running) {
+                        restartGame();
+                    }
+                    break;
+
                 default:
                     System.out.println("Key" + e.getKeyCode() + " is not assigned!");
             }
